@@ -1,0 +1,13 @@
+---
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./Dockerfile
+    volumes:
+      - ../config:/config
+      - ../logs:/logs
+    env_file:
+      - ../.env
+    ports:
+      - 8000:8000
