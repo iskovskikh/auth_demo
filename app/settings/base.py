@@ -2,17 +2,26 @@ from pathlib import Path
 from typing import Any
 
 from pydantic.fields import FieldInfo
-from pydantic_settings import BaseSettings, EnvSettingsSource, PydanticBaseSettingsSource, YamlConfigSettingsSource, \
-    SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    EnvSettingsSource,
+    PydanticBaseSettingsSource,
+    YamlConfigSettingsSource,
+    SettingsConfigDict,
+)
 
 BASE_DIR = Path(__file__).parent.parent.parent
 
 
 class AliasOnlyEnvSettingsSource(EnvSettingsSource):
-    def get_field_value(self, field: FieldInfo, field_name: str) -> tuple[Any, str, bool]:
+    def get_field_value(
+        self, field: FieldInfo, field_name: str
+    ) -> tuple[Any, str, bool]:
         # если у поля не задан alias или validation_alias,
         #  то не будет проверяться наличие env переменной для этого поля
-        is_has_alias: bool = (field.alias is not None) or (field.validation_alias is not None)
+        is_has_alias: bool = (field.alias is not None) or (
+            field.validation_alias is not None
+        )
         if not is_has_alias:
             return None, field_name, False
 
@@ -41,7 +50,4 @@ class PydanticBaseSettings(BaseSettings):
 
 
 class BaseConfig(PydanticBaseSettings):
-    model_config = SettingsConfigDict(
-        env_nested_delimiter=None,
-        extra="ignore"
-    )
+    model_config = SettingsConfigDict(env_nested_delimiter=None, extra="ignore")

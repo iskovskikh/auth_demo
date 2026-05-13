@@ -1,5 +1,4 @@
-
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, AnyUrl
 from pydantic_settings import SettingsConfigDict
 
 from settings.base import BaseConfig, BASE_DIR
@@ -7,19 +6,40 @@ from settings.log import LogConfig
 
 
 class KeyCloakConfig(BaseConfig):
-    base_url:str= Field(alias='KC_BASE_URL')
-    realm: str = Field(alias='KC_REALM')
-    client_id: str = Field(alias='KC_APP_CLIENT_ID')
-    client_secret: SecretStr = Field(alias='KC_APP_CLIENT_SECRET')
+    base_url: str = Field(alias="KC_BASE_URL")
+    realm: str = Field(alias="KC_REALM")
+    client_id: str = Field(alias="KC_APP_CLIENT_ID")
+    client_secret: SecretStr = Field(alias="KC_APP_CLIENT_SECRET")
+
+    @property
+    def token_url(self) -> str:
+        return f"{self.base_url}/realms/{self.realm}/protocol/openid-connect/token"
+
+    @property
+    def auth_url(self) -> str:
+        return f"{self.base_url}/realms/{self.realm}/protocol/openid-connect/auth"
+
+    @property
+    def logout_url(self) -> str:
+        return f"{self.base_url}/realms/{self.realm}/protocol/openid-connect/logout"
+
+    @property
+    def userinfo_url(self) -> str:
+        return f"{self.base_url}/realms/{self.realm}/protocol/openid-connect/userinfo"
+
+
+class AuthConfig(BaseConfig):
+    base_url: str = "localhost:8000"
+
+    @property
+    def redirect_uri(self) -> AnyUrl:
+        return AnyUrl(f"{self.base_url}/api/login/callback")
 
 
 class Config(BaseConfig):
-
-    model_config = SettingsConfigDict(
-        yaml_file=BASE_DIR / 'config' / 'config.yaml'
-    )
+    model_config = SettingsConfigDict(yaml_file=BASE_DIR / "config" / "config.yaml")
 
     keycloak: KeyCloakConfig = Field(default_factory=KeyCloakConfig)
+    auth: AuthConfig = Field(default_factory=AuthConfig)
 
     log: LogConfig = Field(default_factory=LogConfig)
-

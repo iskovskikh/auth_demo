@@ -8,13 +8,14 @@ from settings.config import Config
 
 logger = logging.getLogger(__name__)
 
+
 def get_logger_config(config: Config):
-	config.log.path.mkdir(parents=True, exist_ok=True)
-	with open(config.log.logger_config_path) as file:
-		raw_yaml_str: str = file.read()
-	rendered_str: str = Template(raw_yaml_str).render(config=config)
-	return safe_load(rendered_str)
+    config.log.path.mkdir(parents=True, exist_ok=True)
+    with open(config.log.logger_config_path) as file:
+        raw_yaml_str: str = file.read()
+    rendered_str: str = Template(raw_yaml_str).render(config=config)
+    return safe_load(rendered_str)
 
 
 def init_logger(config: Config):
-	logging.config.dictConfig(get_logger_config(config=config))
+    logging.config.dictConfig(get_logger_config(config=config))
