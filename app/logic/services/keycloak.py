@@ -1,8 +1,11 @@
+import logging
 from dataclasses import dataclass
 from fastapi import HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 from keycloak import KeycloakOpenID, KeycloakError
 from starlette import status
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -15,8 +18,9 @@ class KeycloakService:
         try:
             # Валидация токена
             user_info = self.keycloak_openid.decode_token(
-                token,
-                self.keycloak_openid.public_key(),
+                token = token,
+                validate= True,
+                # self.keycloak_openid.public_key(),
                 options={
                     "verify_signature": True,
                     "verify_aud": False,
@@ -26,7 +30,10 @@ class KeycloakService:
 
             return user_info
 
-        except KeycloakError:
+        except KeycloakError as e:
+
+            logger.error(f'KeycloakError: {e}')
+
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
             )
