@@ -26,10 +26,13 @@ services:
       - KC_DB_URL_DATABASE=${POSTGRES_DB:-db}
       - KC_DB_USERNAME=${POSTGRES_USER:-postgres}
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    volumes:
+#      - ../assets/realm-export.json:/opt/keycloak/data/import/realm-export.json
+      - ../assets/auth-demo-realm-realm.json:/opt/keycloak/data/import/auth-demo-realm-realm.json
     ports:
       - 8080:8080
     command: |
-      start-dev
+      start-dev --import-realm
     depends_on:
       postgres:
         condition: service_healthy

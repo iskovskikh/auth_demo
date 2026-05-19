@@ -1,12 +1,21 @@
+import uvicorn
+from fastapi import FastAPI
+
+from application.api.v1.secret.handlers import router as secret_router
+
 from settings.config import Config
-from settings.logger import init_logger, get_logger_config
+from settings.logger import init_logger
 from colorama import init as init_colorama
 
 from settings.urils import print_config
 
 
-def main():
-    print("Hello from auth-demo!")
+def create_app() -> FastAPI:
+    app = FastAPI()
+
+    app.include_router(secret_router)
+
+    return app
 
 
 if __name__ == "__main__":
@@ -14,4 +23,11 @@ if __name__ == "__main__":
     init_colorama()
     init_logger(config=config)
     print_config(config=config)
-    main()
+
+    uvicorn.run(
+        "main:create_app",
+        host="0.0.0.0",
+        port=8000,
+        log_level="info",
+        factory=True,
+    )

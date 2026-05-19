@@ -1,68 +1,32 @@
 from dataclasses import dataclass
 from fastapi import HTTPException
-
-from httpx import AsyncClient, RequestError
-from pydantic import BaseModel, AnyUrl
-
-from settings.config import Config
+from fastapi.security import HTTPAuthorizationCredentials
+from keycloak import KeycloakOpenID, KeycloakError
+from starlette import status
 
 
 @dataclass
-class TokensDto: ...
+class KeycloakService:
+    keycloak_openid: KeycloakOpenID
 
-
-class KeycloakRequestSchema(BaseModel):
-    grand_type: str = "authorization_code"
-    code: str
-    redirect_uri: AnyUrl
-    client_id: str
-    client_secret: str
-
-
-@dataclass
-class KeycloakClient:
-    client: AsyncClient
-    config: Config
-
-    async def get_tokens(self, code: str) -> TokensDto:
-
-        payload: KeycloakRequestSchema = KeycloakRequestSchema(
-            code=code,
-            redirect_uri=self.config.auth.redirect_uri,
-            client_id=self.config.keycloak.client_id,
-            client_secret=self.config.keycloak.client_secret.get_secret_value(),
-        )
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+    def get_current_user(self, credentials: HTTPAuthorizationCredentials):
+        token = credentials.credentials
 
         try:
-            response = await self.client.post(
-                url=self.config.keycloak.token_url,
-                data=payload.model_dump(),
-                headers=headers,
-            )
-            if response.status_code != 200:
-                raise HTTPException(  # todo: переделать exception
-                    status_code=401, detail=f"Token request failed: {response.text}"
-                )
-            return response.json()
-        except RequestError as e:
-            raise HTTPException(  # todo: переделать exception
-                status_code=500, detail=f"Token exchange failed: {str(e)}"
+            # Валидация токена
+            user_info = self.keycloak_openid.decode_token(
+                token,
+                self.keycloak_openid.public_key(),
+                options={
+                    "verify_signature": True,
+                    "verify_aud": False,
+                    "verify_exp": True,
+                },
             )
 
-        return TokensDto()
+            return user_info
 
-    async def get_user_info(self, token: str) -> dict:
-        
-        headers = {"Authorization": f"Bearer {token}"}
-        try:
-            response = await self.client.get(self.config.keycloak.userinfo_url, headers=headers)
-            if response.status_code != 200:
-                raise HTTPException(
-                    status_code=401, detail=f"Invalid access token: {response.text}"
-                )
-            return response.json()
-        except RequestError as e:
+        except KeycloakError:
             raise HTTPException(
-                status_code=500, detail=f"Keycloak request error: {str(e)}"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
             )
