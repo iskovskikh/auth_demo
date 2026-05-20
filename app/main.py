@@ -33,8 +33,9 @@ def create_app() -> FastAPI:
 
 if __name__ == "__main__":
     config = Config()
-    init_colorama()
+
     init_logger(config=config)
+    init_colorama()
     print_config(config=config)
 
     uvicorn.run(

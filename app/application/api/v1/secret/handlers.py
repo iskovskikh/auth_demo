@@ -1,12 +1,14 @@
 import logging
+import pprint
 
-from colorama import Style
+from colorama import Style, Fore
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from application.api.v1.dependencies import ContainerDependency
 from application.api.v1.secret.schemas import EditSecretRequestSchema
 from logic.services.keycloak import KeycloakService
+from settings.config import Config
 
 router = APIRouter(prefix="/secret")
 security = HTTPBearer()
@@ -22,13 +24,16 @@ async def read_secret_handler(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
     keycloak_service: KeycloakService = container.resolve(KeycloakService)
-
-    logger.debug(credentials)
+    config: Config = container.resolve(Config)
+    logger.debug(f'{Style.DIM}{credentials=}{Style.RESET_ALL}')
 
     user_info = keycloak_service.get_current_user(credentials=credentials)
-    logger.debug(f"{Style.DIM}{user_info=}{Style.RESET_ALL}")
+
+    for line in pprint.pformat(user_info).split('\n'):
+        logger.debug(f"{Style.DIM}{line}{Style.RESET_ALL}")
 
     roles: list[str] = user_info["realm_access"]["roles"]
+    # roles: list[str] = user_info["resource_access"][config.keycloak.client_id]["roles"]
     permissions:list[str] = []
 
     logger.debug(f"{roles=}")
