@@ -1,5 +1,6 @@
 import logging
 
+from colorama import Style
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
@@ -25,8 +26,18 @@ async def read_secret_handler(
     logger.debug(credentials)
 
     user_info = keycloak_service.get_current_user(credentials=credentials)
-    logger.debug(f"{user_info=}")
-    return {"get_secret": 42}
+    logger.debug(f"{Style.DIM}{user_info=}{Style.RESET_ALL}")
+
+    roles: list[str] = user_info["realm_access"]["roles"]
+    permissions:list[str] = []
+
+    logger.debug(f"{roles=}")
+    logger.debug(f"{permissions=}")
+
+    return dict(
+        roles = roles,
+        permissions = permissions
+    )
 
 
 @router.post(

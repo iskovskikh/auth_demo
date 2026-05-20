@@ -6,37 +6,37 @@ const [loading, setLoading] = useState(true)
 const [error, setError] = useState(null)
 
 useEffect(() => {
- const url = 'http://localhost:8000/secret'
- const headers = {
-   Authorization: 'Bearer ' + keycloak.token,
-   Accept: 'application/json',
- }
- fetch(url, { headers })
-   .then((resp) => {
-     if (!resp.ok) {
-       throw new Error('HTTP ' + resp.status)
+     const url = import.meta.env.VITE_BASE_URL + 'secret'
+     const headers = {
+       Authorization: 'Bearer ' + keycloak.token,
+       Accept: 'application/json',
      }
-     return resp.json()
-   })
-   .then((json) => {
-     setData(json)
-     setLoading(false)
-   })
-   .catch((err) => {
-     setError(err.message)
-     setLoading(false)
-   })
-}, [keycloak.token])
+     fetch(url, { headers })
+       .then((resp) => {
+         if (!resp.ok) {
+           throw new Error('HTTP ' + resp.status)
+         }
+         return resp.json()
+       })
+       .then((json) => {
+         setData(json)
+         setLoading(false)
+       })
+       .catch((err) => {
+         setError(err.message)
+         setLoading(false)
+       })
+    }, [keycloak.token])
 
-return (
- <div>
-   <h2>Secret Page</h2>
-   {loading && <p>Loading secret…</p>}
-   {error && <p style={{ color: 'red' }}>{error}</p>}
-   {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
-   <button onClick={onBack}>Back</button>
- </div>
-)
+    return (
+     <div>
+       <h2>Secret Page</h2>
+       {loading && <p>Loading secret…</p>}
+       {error && <p style={{ color: 'red' }}>{error}</p>}
+       {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
+       <button onClick={onBack}>Back</button>
+     </div>
+    )
 }
 
 export default SecretPage

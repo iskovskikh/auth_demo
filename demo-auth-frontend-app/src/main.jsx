@@ -16,6 +16,19 @@ keycloak
       return
     }
 
+    setInterval(() => {
+      keycloak
+        .updateToken(30)
+        .then((refreshed) => {
+          if (refreshed) {
+            console.log('Token refreshed')
+          }
+        })
+        .catch(() => {
+          console.log('Failed to refresh token')
+        })
+    }, 10000)
+
     createRoot(document.getElementById('root')).render(
       <StrictMode>
         <App keycloak={keycloak} />
