@@ -21,11 +21,11 @@ class KeycloakService:
                 token = token,
                 validate= True,
                 # self.keycloak_openid.public_key(),
-                options={
-                    "verify_signature": True,
-                    "verify_aud": False,
-                    "verify_exp": True,
-                },
+                # options={
+                #     "verify_signature": True,
+                #     "verify_aud": False,
+                #     "verify_exp": True,
+                # },
             )
 
             return user_info

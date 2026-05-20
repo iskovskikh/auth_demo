@@ -53,3 +53,7 @@ loggers:
     handlers: [ console_handler ]
     propagate: no
 
+  keycloak:
+    handlers: [ console_handler ]
+    propagate: no
+    level: DEBUG

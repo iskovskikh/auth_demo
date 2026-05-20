@@ -5,6 +5,8 @@ services:
       context: ../
       dockerfile: ./Dockerfile
 #    network_mode: "host"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ../config:/config
       - ../logs:/logs
