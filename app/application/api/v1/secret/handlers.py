@@ -18,7 +18,14 @@ logger = logging.getLogger(__name__)
 )
 async def read_secret_handler(
     container: ContainerDependency,
+    credentials: HTTPAuthorizationCredentials = Depends(security),
 ):
+    keycloak_service: KeycloakService = container.resolve(KeycloakService)
+
+    logger.debug(credentials)
+
+    user_info = keycloak_service.get_current_user(credentials=credentials)
+    logger.debug(f"{user_info=}")
     return {"get_secret": 42}
 
 
