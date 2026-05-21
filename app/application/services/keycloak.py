@@ -48,7 +48,14 @@ class KeycloakService:
         user: User,
         allowed_roles = list[str],
     ):
-         if not (set(user.roles) & set(allowed_roles)):
+         logger.debug(f'{set(user.roles)=}')
+         logger.debug(f'{set(allowed_roles)=}')
+         logger.debug(f'{set(user.roles) & set(allowed_roles)=}')
+         if (
+             'any' not in allowed_roles \
+             and \
+             not (set(user.roles) & set(allowed_roles)) \
+         ):
              logger.debug(f'Не достаточно прав {user=} {allowed_roles=}')
              raise ForbiddenException("Не достаточно прав")
 

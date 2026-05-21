@@ -1,14 +1,16 @@
 import logging
 import pprint
 
+from typing import Annotated
 from colorama import Style, Fore
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
-from application.api.v1.dependencies import ContainerDependency
+from application.api.v1.dependencies import ContainerDependency, RequireRole
 from application.api.v1.secret.schemas import EditSecretRequestSchema
 from application.services.keycloak import KeycloakService
 from settings.config import Config
+from application.services.keycloak import KeycloakService, User
 
 router = APIRouter(prefix="/secret")
 security = HTTPBearer()
@@ -21,15 +23,10 @@ logger = logging.getLogger(__name__)
 )
 async def read_secret_handler(
     container: ContainerDependency,
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    # user: Annotated[User, Depends(RequireRole(required_role='any'))],
+    # user: Annotated[User, Depends(RequireRole(required_role='auth-demo-app-user'))],
+    user: Annotated[User, Depends(RequireRole(required_role='auth-demo-app-admin'))],
 ):
-    keycloak_service: KeycloakService = container.resolve(KeycloakService)
-    user: User = keycloak_service.get_current_user(credentials=credentials)
-    keycloak_service.require_roles(
-        user=user,
-        allowed_roles=['auth-demo-app-user'],
-        # allowed_roles=['auth-demo-app-admin'].
-    )
 
     logger.debug(f"{user=}")
 
