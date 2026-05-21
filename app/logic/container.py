@@ -1,7 +1,7 @@
 from anyio.functools import lru_cache
 from punq import Container, Scope
 from keycloak import KeycloakOpenID
-from logic.services.keycloak import KeycloakService
+from application.services.keycloak import KeycloakService
 from settings.config import Config
 
 
