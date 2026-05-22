@@ -3,6 +3,7 @@ from pydantic_settings import SettingsConfigDict
 
 from settings.base import BaseConfig, BASE_DIR
 from settings.log import LogConfig
+from settings.permissions import PermissionConfig
 
 
 class KeyCloakConfig(BaseConfig):
@@ -41,5 +42,6 @@ class Config(BaseConfig):
 
     keycloak: KeyCloakConfig = Field(default_factory=KeyCloakConfig)
     auth: AuthConfig = Field(default_factory=AuthConfig)
+    permissions: PermissionConfig = Field(default_factory=PermissionConfig)
 
     log: LogConfig = Field(default_factory=LogConfig)
