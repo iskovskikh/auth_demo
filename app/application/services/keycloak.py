@@ -1,16 +1,14 @@
 import logging
 from dataclasses import dataclass
 from fastapi.security import HTTPAuthorizationCredentials
-from keycloak import KeycloakOpenID, KeycloakError
+from keycloak import KeycloakOpenID
 from pydantic import BaseModel
 
 from application.exceptions import ApplicationException
-import logging
 import pprint
 
-from colorama import Style, Fore
+from colorama import Style
 
-from settings.config import Config
 
 
 logger = logging.getLogger(__name__)

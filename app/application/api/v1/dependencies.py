@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from functools import wraps
-from typing import Annotated, Callable
+from typing import Annotated
 
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -30,7 +30,7 @@ def require_role(role: str):
 
 @dataclass(frozen=True)
 class RequireRole:
-    required_role: str
+    allowed_roles: tuple[str] = ('any',)
 
     def __call__(
         self,
@@ -42,7 +42,7 @@ class RequireRole:
         user: User = keycloak_service.get_current_user(credentials=credentials)
         keycloak_service.require_roles(
             user=user,
-            allowed_roles=[self.required_role],
+            allowed_roles=self.allowed_roles,
         )
 
         return user

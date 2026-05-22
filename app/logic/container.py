@@ -2,6 +2,8 @@ from anyio.functools import lru_cache
 from punq import Container, Scope
 from keycloak import KeycloakOpenID
 from application.services.keycloak import KeycloakService
+from infra.repositories import SecretRepository
+from logic.services.permissions import BasePermissionService, ConfigPermissionService
 from settings.config import Config
 
 
@@ -30,5 +32,7 @@ def _init_container() -> Container:
 
     container.register(KeycloakOpenID, instance=get_keycloak_client(config=config), scope=Scope.singleton)
     container.register(KeycloakService, factory=KeycloakService, scope=Scope.singleton)
+    container.register(SecretRepository, factory=SecretRepository, scope=Scope.singleton)
+    container.register(BasePermissionService, factory=ConfigPermissionService, scope=Scope.singleton)
 
     return container

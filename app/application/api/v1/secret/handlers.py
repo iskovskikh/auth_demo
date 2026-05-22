@@ -1,57 +1,60 @@
 import logging
-import pprint
 
 from typing import Annotated
-from colorama import Style, Fore
 from fastapi import APIRouter, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPBearer
 
 from application.api.v1.dependencies import ContainerDependency, RequireRole
 from application.api.v1.secret.schemas import EditSecretRequestSchema
-from application.services.keycloak import KeycloakService
-from settings.config import Config
-from application.services.keycloak import KeycloakService, User
-
-router = APIRouter(prefix="/secret")
-security = HTTPBearer()
+from application.services.keycloak import User
+from infra.repositories import SecretRepository
 
 logger = logging.getLogger(__name__)
 
+router = APIRouter()
 
 @router.get(
-    path="",
+    path="/public",
 )
 async def read_secret_handler(
     container: ContainerDependency,
-    # user: Annotated[User, Depends(RequireRole(required_role='any'))],
-    # user: Annotated[User, Depends(RequireRole(required_role='auth-demo-app-user'))],
-    user: Annotated[User, Depends(RequireRole(required_role='auth-demo-app-admin'))],
+    user: Annotated[User, Depends(RequireRole())],
+):
+    return {'public_data': '999'}
+
+
+@router.get(
+    path="/secret",
+)
+async def read_secret_handler(
+    container: ContainerDependency,
+    user: Annotated[User, Depends(RequireRole(allowed_roles=('auth-demo-app-user', 'auth-demo-app-admin',)))],
 ):
 
     logger.debug(f"{user=}")
 
-    return dict(
-        roles = user.roles,
-        permissions = []
-    )
+    repo: SecretRepository = container.resolve(SecretRepository)
+
+    value: str = repo.get()
+
+    return {'secret_read': value}
 
 
-# @router.post(
-#     path="",
-# )
-# async def edit_secret_handler(
-#     schema: EditSecretRequestSchema,
-#     container: ContainerDependency,
-#     credentials: HTTPAuthorizationCredentials = Depends(security),
-# ):
-#
-#     keycloak_service: KeycloakService = container.resolve(KeycloakService)
-#
-#     logger.debug(credentials)
-#
-#     user_info = keycloak_service.get_current_user(credentials=credentials)
-#
-#     logger.debug(f"{user_info=}")
-#
-#     return {"set_secret": schema.data}
+@router.post(
+    path="/secret",
+)
+async def edit_secret_handler(
+    schema: EditSecretRequestSchema,
+    container: ContainerDependency,
+    user: Annotated[User, Depends(RequireRole(allowed_roles=('auth-demo-app-admin',)))],
+):
+    logger.debug(f"{user=}")
+    logger.debug(f"{schema.value=}")
 
+
+    repo: SecretRepository = container.resolve(SecretRepository)
+
+    repo.set(new_value = schema.value)
+    value: str = repo.get()
+
+    return {'secret_edit': value}
