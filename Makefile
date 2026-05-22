@@ -3,9 +3,10 @@ EXEC = docker exec -it
 LOGS = docker logs
 APP = docker/app.yaml
 KC = docker/keycloak.yaml
-APP_SERVICE = app
+FRONTEND_APP_SERVICE = frontend
+BACKEND_APP_SERVICE = backend
 KC_SERVICE = keycloak
-ENV = --env-file .env
+ENV = --env-file demo-auth-backend-app/.env
 
 # ------------------------------------------
 
@@ -19,7 +20,11 @@ app-down:
 
 .PHONY: app-logs
 app-logs:
-	${DC} -f ${APP} logs -f ${APP_SERVICE}
+	${DC} -f ${APP} logs -f ${BACKEND_APP_SERVICE}
+
+.PHONY: app-frontend-logs
+app-frontend-logs:
+	${DC} -f ${APP} logs -f ${FRONTEND_APP_SERVICE}
 
 # ------------------------------------------
 

@@ -1,8 +1,23 @@
 ---
 services:
-  app:
+
+  frontend:
     build:
-      context: ../
+      context: ../demo-auth-frontend-app
+      dockerfile: ./Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+#      - .:/app
+      - /app/node_modules
+    env_file:
+      - ../demo-auth-frontend-app/.env
+    ports:
+      - 3000:3000
+
+  backend:
+    build:
+      context: ../demo-auth-backend-app
       dockerfile: ./Dockerfile
 #    network_mode: "host"
     extra_hosts:
@@ -11,6 +26,6 @@ services:
       - ../config:/config
       - ../logs:/logs
     env_file:
-      - ../.env
+      - ../demo-auth-backend-app/.env
     ports:
       - 8000:8000
