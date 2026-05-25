@@ -7,11 +7,14 @@ from fastapi.security import HTTPBearer
 from application.api.v1.dependencies import ContainerDependency, RequireRole
 from application.api.v1.secret.schemas import EditSecretRequestSchema
 from application.services.keycloak import User
-from infra.repositories import SecretRepository
+from infra.repositories.secret import SecretRepository
+from settings.config import Config, get_config
+
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+config: Config = get_config()
 
 @router.get(
     path="/public",
@@ -20,7 +23,7 @@ async def read_secret_handler(
     container: ContainerDependency,
     user: Annotated[User, Depends(RequireRole())],
 ):
-    return {'public_data': '999'}
+    return {"public_data": "999"}
 
 
 @router.get(
@@ -28,7 +31,17 @@ async def read_secret_handler(
 )
 async def read_secret_handler(
     container: ContainerDependency,
-    user: Annotated[User, Depends(RequireRole(allowed_roles=('auth-demo-app-user', 'auth-demo-app-admin',)))],
+    user: Annotated[
+        User,
+        Depends(
+            RequireRole(
+                allowed_roles=(
+                    config.permissions.role_alias.user,
+                    config.permissions.role_alias.admin,
+                ),
+            ),
+        ),
+    ],
 ):
 
     logger.debug(f"{user=}")
@@ -37,7 +50,7 @@ async def read_secret_handler(
 
     value: str = repo.get()
 
-    return {'secret_read': value}
+    return {"secret_read": value}
 
 
 @router.post(
@@ -46,15 +59,23 @@ async def read_secret_handler(
 async def edit_secret_handler(
     schema: EditSecretRequestSchema,
     container: ContainerDependency,
-    user: Annotated[User, Depends(RequireRole(allowed_roles=('auth-demo-app-admin',)))],
+    user: Annotated[
+        User,
+        Depends(
+            RequireRole(
+                allowed_roles=(
+                    config.permissions.role_alias.admin,
+                ),
+            ),
+        ),
+    ],
 ):
     logger.debug(f"{user=}")
     logger.debug(f"{schema.value=}")
 
-
     repo: SecretRepository = container.resolve(SecretRepository)
 
-    repo.set(new_value = schema.value)
+    repo.set(new_value=schema.value)
     value: str = repo.get()
 
-    return {'secret_edit': value}
+    return {"secret_edit": value}

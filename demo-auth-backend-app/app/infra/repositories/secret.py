@@ -3,9 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class SecretRepository:
-    value: str = '42'
+    value: str = "42"
 
-    def get(self)->str:
+    def get(self) -> str:
         return self.value
 
     def set(self, new_value):

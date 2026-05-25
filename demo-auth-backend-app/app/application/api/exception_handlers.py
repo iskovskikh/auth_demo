@@ -9,27 +9,36 @@ from application.services.keycloak import ForbiddenException, UnauthorizedExcept
 
 
 async def unauthorized_exception_handler(request: Request, exc: UnauthorizedException):
-	return JSONResponse(
-		status_code=status.HTTP_401_UNAUTHORIZED,
-		content=ErrorSchema(detail=ErrorDescriptionSchema(error=exc.message)).model_dump(),
-	)
+    return JSONResponse(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        content=ErrorSchema(
+            detail=ErrorDescriptionSchema(error=exc.message)
+        ).model_dump(),
+    )
+
 
 async def forbidden_exception_handler(request: Request, exc: ForbiddenException):
-	return JSONResponse(
-		status_code=status.HTTP_403_FORBIDDEN,
-		content=ErrorSchema(detail=ErrorDescriptionSchema(error=exc.message)).model_dump(),
-	)
+    return JSONResponse(
+        status_code=status.HTTP_403_FORBIDDEN,
+        content=ErrorSchema(
+            detail=ErrorDescriptionSchema(error=exc.message)
+        ).model_dump(),
+    )
 
 
 async def application_exception_handler(request: Request, exc: ApplicationException):
-	return JSONResponse(
-		status_code=status.HTTP_400_BAD_REQUEST,
-		content=ErrorSchema(detail=ErrorDescriptionSchema(error=exc.message)).model_dump(),
-	)
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=ErrorSchema(
+            detail=ErrorDescriptionSchema(error=exc.message)
+        ).model_dump(),
+    )
 
 
-async def request_validation_error_handler(request: Request, exc: RequestValidationError):
-	return JSONResponse(
-		status_code=status.HTTP_400_BAD_REQUEST,
-		content=ErrorSchema(detail=ErrorDescriptionSchema(error=str(exc))).model_dump(),
-	)
+async def request_validation_error_handler(
+    request: Request, exc: RequestValidationError
+):
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=ErrorSchema(detail=ErrorDescriptionSchema(error=str(exc))).model_dump(),
+    )

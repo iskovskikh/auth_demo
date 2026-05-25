@@ -1,26 +1,33 @@
 
 
 permissions:
-  user:
-    label: auth-demo-app-user
-    permissions:
-      - demo.read
+  roles:
+    - title: user
+      permissions:
+        - demo.read
+    - title: manager
+      permissions:
+        - demo.read
+        - demo.write
+    - title: admin
+      permissions:
+        - demo.read
+        - demo.write
+    - title: auditor
+      permissions:
+        - audit.read
 
-  manager:
-    label: auth-demo-app-manager
-    permissions:
-      - demo.read
-      - demo.edit
-
-  admin:
-    label: auth-demo-app-admin
-    permissions:
-      - demo.read
-      - demo.edit
-
-  auditor:
-    label: auth-demo-app-auditor
-    permissions: []
+  users:
+    - username: demo_user_1
+      roles:
+        - user
+    - username: demo_user_2
+      roles:
+        - admin
+    - username: demo_user_3
+      roles:
+        - manager
+        - auditor
 
 log:
   console_format: "%(levelname)s | %(message)s"

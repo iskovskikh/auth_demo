@@ -2,9 +2,12 @@ from anyio.functools import lru_cache
 from punq import Container, Scope
 from keycloak import KeycloakOpenID
 from application.services.keycloak import KeycloakService
-from infra.repositories import SecretRepository
+from infra.repositories.secret import SecretRepository
+
+from infra.repositories.user import BaseUserRepository, InmemoryUserRepository
+from infra.services.user import UserLoaderService
 from logic.services.permissions import BasePermissionService, ConfigPermissionService
-from settings.config import Config
+from settings.config import Config, get_config
 
 
 @lru_cache(maxsize=1)
@@ -27,12 +30,28 @@ def _init_container() -> Container:
 
     container = Container()
 
-    container.register(Config, instance=Config(), scope=Scope.singleton)
+    container.register(Config, instance=get_config(), scope=Scope.singleton)
     config = container.resolve(Config)
 
-    container.register(KeycloakOpenID, instance=get_keycloak_client(config=config), scope=Scope.singleton)
+    container.register(
+        KeycloakOpenID,
+        instance=get_keycloak_client(config=config),
+        scope=Scope.singleton,
+    )
     container.register(KeycloakService, factory=KeycloakService, scope=Scope.singleton)
-    container.register(SecretRepository, factory=SecretRepository, scope=Scope.singleton)
-    container.register(BasePermissionService, factory=ConfigPermissionService, scope=Scope.singleton)
+    container.register(
+        SecretRepository, factory=SecretRepository, scope=Scope.singleton
+    )
+    container.register(
+        BasePermissionService, factory=ConfigPermissionService, scope=Scope.singleton
+    )
+    container.register(
+        UserLoaderService, factory=UserLoaderService, scope=Scope.singleton
+    )
+
+    # repositories
+    container.register(
+        BaseUserRepository, factory=InmemoryUserRepository, scope=Scope.singleton
+    )
 
     return container

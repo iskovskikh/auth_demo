@@ -1,3 +1,5 @@
+from functools import lru_cache
+
 from pydantic import Field, SecretStr, AnyUrl
 from pydantic_settings import SettingsConfigDict
 
@@ -45,3 +47,7 @@ class Config(BaseConfig):
     permissions: PermissionConfig = Field(default_factory=PermissionConfig)
 
     log: LogConfig = Field(default_factory=LogConfig)
+
+@lru_cache(maxsize=1)
+def get_config()-> Config:
+    return Config()

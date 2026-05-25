@@ -16,6 +16,7 @@ router = APIRouter(prefix="/auth")
 
 logger = logging.getLogger(__name__)
 
+
 @router.get(
     path="/profile",
 )
@@ -35,7 +36,7 @@ async def get_profile_handler(
         permission_list.extend(permissions_for_role)
 
     return ProfileResponseSchema(
-        username = user.username,
-        roles = user.roles,
-        permissions = list(set(permission_list)),
+        username=user.username,
+        roles=user.roles,
+        permissions=list(set(permission_list)),
     )

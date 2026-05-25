@@ -3,8 +3,12 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from starlette.middleware.cors import CORSMiddleware
 
-from application.api.exception_handlers import unauthorized_exception_handler, application_exception_handler, \
-    request_validation_error_handler, forbidden_exception_handler
+from application.api.exception_handlers import (
+    unauthorized_exception_handler,
+    application_exception_handler,
+    request_validation_error_handler,
+    forbidden_exception_handler,
+)
 from application.api.v1.secret.handlers import router as secret_router
 from application.api.v1.auth.handlers import router as auth_router
 from application.exceptions import ApplicationException
@@ -20,6 +24,7 @@ origins = [
     "http://localhost:3000",
 ]
 
+
 def create_app() -> FastAPI:
     app = FastAPI()
 
@@ -28,8 +33,8 @@ def create_app() -> FastAPI:
         allow_origins=origins,
         allow_credentials=True,
         # allow_credentials=False,
-        allow_methods=['*'],
-        allow_headers=['*'],
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     app.include_router(auth_router)

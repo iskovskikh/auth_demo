@@ -1,24 +1,24 @@
 from typing import (
-	Generic,
-	TypeVar,
+    Generic,
+    TypeVar,
 )
 
 from pydantic import BaseModel
 
 
 class ErrorDescriptionSchema(BaseModel):
-	error: str
+    error: str
 
 
 class ErrorSchema(BaseModel):
-	detail: ErrorDescriptionSchema
+    detail: ErrorDescriptionSchema
 
 
-IT = TypeVar('IT')
+IT = TypeVar("IT")
 
 
 class BaseQueryResponseSchema(BaseModel, Generic[IT]):
-	count: int
-	offset: int
-	limit: int
-	items: IT
+    count: int
+    offset: int
+    limit: int
+    items: IT
